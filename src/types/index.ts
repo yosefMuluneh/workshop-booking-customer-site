@@ -5,6 +5,7 @@ export interface TimeSlot {
   startTime: string;
   endTime: string;
   availableSpots: number;
+  workshopId?: string;
 }
 
 export interface Workshop {
@@ -14,6 +15,8 @@ export interface Workshop {
   date: string; // ISO date string
   maxCapacity: number;
   timeSlots: TimeSlot[];
+  bookings?: object;
+  _count?: object;
 }
 
 export interface BookingConfirmation {

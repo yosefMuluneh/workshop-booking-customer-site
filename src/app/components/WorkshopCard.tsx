@@ -12,7 +12,7 @@ interface WorkshopCardProps {
 }
 
 const WorkshopCard = ({ workshop }: WorkshopCardProps) => {
-  const [selectedSlotId, setSelectedSlotId] = useState<string>(workshop.timeSlots[0]?.id || '');
+  const [selectedSlotId, setSelectedSlotId] = useState<string>((workshop.timeSlots && workshop.timeSlots[0]?.id) || '');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
@@ -21,10 +21,13 @@ const WorkshopCard = ({ workshop }: WorkshopCardProps) => {
   const handleBooking = async () => {
     if (!token) {
       setError('Please log in to book a workshop.');
+      //set time out
+      setTimeout(()=> setError(''), 3000)
       return;
     }
     if (!selectedSlotId) {
       setError('Please select a time slot.');
+      setTimeout(()=> setError(''), 3000)
       return;
     }
     setLoading(true);
@@ -44,8 +47,10 @@ const WorkshopCard = ({ workshop }: WorkshopCardProps) => {
     }
   };
 
+  const selectId = `time-slot-select-${workshop.id}`;
+
   return (
-    <div className="w-full max-w-md bg-white rounded-xl shadow-md border border-gray-200 p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+    <div data-testid={`workshop-card-${workshop.id}`} className="w-full max-w-md bg-white rounded-xl shadow-md border border-gray-200 p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
       <div className="flex items-center mb-4">
         <Image
           width={48}
@@ -75,6 +80,7 @@ const WorkshopCard = ({ workshop }: WorkshopCardProps) => {
           Select a Time Slot <span className="text-red-500">*</span>
         </label>
         <select
+          id={selectId}
           value={selectedSlotId}
           onChange={(e) => setSelectedSlotId(e.target.value)}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 font-poppins text-sm bg-white transition-all duration-300"

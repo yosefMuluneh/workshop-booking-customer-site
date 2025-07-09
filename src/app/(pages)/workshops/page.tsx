@@ -19,7 +19,7 @@ const WorkshopsPage = async () => {
   return (
     <div>
       <h1 className="text-4xl font-bold text-center mb-8">Available Workshops</h1>
-      {workshops.length > 0 ? (
+      {workshops && workshops.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {workshops.map((workshop) => (
             <WorkshopCard key={workshop.id} workshop={workshop} />
