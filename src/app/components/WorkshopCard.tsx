@@ -6,6 +6,7 @@ import { createBooking } from '../api/customerApi';
 import { useRouter } from 'next/navigation';
 import { Workshop } from '@/types';
 import Image from 'next/image';
+import { CalendarDaysIcon, ClockIcon, UserGroupIcon, SparklesIcon } from '@heroicons/react/24/solid';
 
 interface WorkshopCardProps {
   workshop: Workshop;
@@ -50,31 +51,52 @@ const WorkshopCard = ({ workshop }: WorkshopCardProps) => {
   const selectId = `time-slot-select-${workshop.id}`;
 
   return (
-    <div data-testid={`workshop-card-${workshop.id}`} className="w-full max-w-md bg-white rounded-xl shadow-md border border-gray-200 p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-      <div className="flex items-center mb-4">
-        <Image
-          width={48}
-          height={48}
-          src="/images/cover.jpg"
-          alt={workshop.title}
-          className="h-12 w-12 rounded-full object-cover mr-3"
-          onError={() => console.error(`Image failed to load for workshop: ${workshop.title}`)}
-        />
-        <div>
-          <h3 className="text-2xl font-bold text-gray-800 font-poppins sm:text-lg">
+    <div 
+      data-testid={`workshop-card-${workshop.id}`} 
+      className="group relative w-full max-w-md bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-indigo-200"
+    >
+      {/* Card Header with Gradient */}
+      <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-6 text-white">
+        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="relative z-10">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                <SparklesIcon className="w-6 h-6 text-white" />
+              </div>
+              <div className="hidden sm:block w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+            </div>
+            <div className="text-right">
+              <span className="text-xs bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full font-medium">
+                {workshop.maxCapacity} spots
+              </span>
+            </div>
+          </div>
+          
+          <h3 className="text-xl font-bold mb-2 leading-tight">
             {workshop.title}
           </h3>
-          <p className="text-teal-600 text-sm font-poppins">
-            {new Date(workshop.date).toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </p>
+          
+          <div className="flex items-center space-x-2 text-white/90">
+            <CalendarDaysIcon className="w-4 h-4" />
+            <span className="text-sm font-medium">
+              {new Date(workshop.date).toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              })}
+            </span>
+          </div>
         </div>
+        {/* Decorative Elements */}
+        <div className="absolute top-4 right-4 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
+        <div className="absolute bottom-4 left-4 w-16 h-16 bg-white/5 rounded-full blur-2xl"></div>
       </div>
-      <p className="text-gray-600 mb-4 font-poppins text-sm">{workshop.description}</p>
+      
+      {/* Card Body */}
+      <div className="p-6">
+        <p className="text-slate-600 mb-6 text-sm leading-relaxed">{workshop.description}</p>
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 font-poppins mb-1">
           Select a Time Slot <span className="text-red-500">*</span>
@@ -119,6 +141,7 @@ const WorkshopCard = ({ workshop }: WorkshopCardProps) => {
       >
         {loading ? 'Booking...' : 'Book Now'}
       </button>
+    </div>
     </div>
   );
 };
