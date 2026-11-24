@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Workshop } from '@/types';
 import {
   CalendarDaysIcon, ClockIcon, UserGroupIcon, SparklesIcon,
-  ArrowRightIcon, CheckCircleIcon,
+  ArrowRightIcon, CheckCircleIcon, ChevronDownIcon, CheckIcon,
 } from '@heroicons/react/24/outline';
 
 interface WorkshopCardProps { workshop: Workshop; }
@@ -18,6 +18,7 @@ const formatWorkshopDate = (date: string) => new Date(date).toLocaleDateString('
 
 const WorkshopCard = ({ workshop }: WorkshopCardProps) => {
   const [selectedSlotId, setSelectedSlotId] = useState(workshop.timeSlots?.[0]?.id || '');
+  const [slotMenuOpen, setSlotMenuOpen] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
@@ -25,6 +26,7 @@ const WorkshopCard = ({ workshop }: WorkshopCardProps) => {
   const selectedSlot = workshop.timeSlots?.find((slot) => slot.id === selectedSlotId);
 
   const handleBooking = async () => {
+    if (loading) return;
     if (!token) {
       setError('Please log in to book a workshop.');
       return;
@@ -44,7 +46,6 @@ const WorkshopCard = ({ workshop }: WorkshopCardProps) => {
       router.push(`/booking-confirmation/${response.bookingId}`);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Booking failed. Please try again later.');
-    } finally {
       setLoading(false);
     }
   };
@@ -79,19 +80,33 @@ const WorkshopCard = ({ workshop }: WorkshopCardProps) => {
         <p className="mt-4 line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-[#68736d]">{workshop.description}</p>
 
         <div className="mt-5 border-t border-[#edf0e9] pt-5">
-          <label htmlFor={selectId} className="mb-2 block text-xs font-bold uppercase tracking-[.12em] text-[#59665e]">Choose a time</label>
+          <label id={selectId} className="mb-2 block text-xs font-bold uppercase tracking-[.12em] text-[#59665e]">Choose a time</label>
           <div className="relative">
-            <ClockIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#87938a]" />
-            <select id={selectId} value={selectedSlotId} onChange={(event) => setSelectedSlotId(event.target.value)} className="w-full cursor-pointer appearance-none rounded-xl border border-[#e3e7df] bg-[#fafbf8] py-3 pl-10 pr-10 text-sm font-semibold text-[#34443a] shadow-sm outline-none transition hover:border-[#b9cbbd] focus:border-[#176b50] focus:ring-4 focus:ring-[#176b50]/10 disabled:cursor-not-allowed disabled:opacity-60">
-              {!workshop.timeSlots?.length ? <option value="">No time slots available</option> : workshop.timeSlots.map((slot) => (
-                <option key={slot.id} value={slot.id} disabled={slot.availableSpots <= 0}>
-                  {slot.startTime} – {slot.endTime} · {slot.availableSpots} spots left
-                </option>
-              ))}
-            </select>
-            <svg aria-hidden="true" className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#718078]" viewBox="0 0 20 20" fill="none">
-              <path d="m5 7.5 5 5 5-5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <button type="button" aria-labelledby={selectId} aria-haspopup="listbox" aria-expanded={slotMenuOpen}
+              onClick={() => setSlotMenuOpen((open) => !open)} disabled={!workshop.timeSlots?.length}
+              className="flex w-full items-center gap-3 rounded-xl border border-[#e3e7df] bg-[#fafbf8] py-3 pl-3.5 pr-3 text-left text-sm font-semibold text-[#34443a] shadow-sm transition hover:border-[#b9cbbd] hover:bg-white focus:border-[#176b50] focus:outline-none focus:ring-4 focus:ring-[#176b50]/10 disabled:cursor-not-allowed disabled:opacity-60">
+              <ClockIcon className="h-4 w-4 shrink-0 text-[#87938a]" />
+              <span className="min-w-0 flex-1 truncate">{selectedSlot ? `${selectedSlot.startTime} – ${selectedSlot.endTime}` : 'No time slots available'}</span>
+              <ChevronDownIcon className={`h-4 w-4 shrink-0 text-[#718078] transition-transform ${slotMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {slotMenuOpen && (
+              <div role="listbox" aria-labelledby={selectId} className="absolute left-0 right-0 z-30 mt-2 max-h-60 overflow-y-auto rounded-2xl border border-[#e4e9e1] bg-white p-1.5 shadow-[0_18px_45px_rgba(27,45,35,.16)]">
+                {workshop.timeSlots?.map((slot) => {
+                  const isSelected = slot.id === selectedSlotId;
+                  return (
+                    <button key={slot.id} type="button" role="option" aria-selected={isSelected} disabled={slot.availableSpots <= 0}
+                      onClick={() => { setSelectedSlotId(slot.id); setSlotMenuOpen(false); }}
+                      className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition ${isSelected ? 'bg-[#edf4ee] text-[#176b50]' : 'text-[#34443a] hover:bg-[#f7f8f4]'} disabled:cursor-not-allowed disabled:opacity-40`}>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-semibold">{slot.startTime} – {slot.endTime}</span>
+                        <span className="mt-0.5 block text-xs text-[#87938a]">{slot.availableSpots > 0 ? `${slot.availableSpots} spots available` : 'Fully booked'}</span>
+                      </span>
+                      {isSelected && <CheckIcon className="h-4 w-4 shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
           {selectedSlot && (
             <div className="mt-3 flex items-center justify-between text-xs">
@@ -104,9 +119,18 @@ const WorkshopCard = ({ workshop }: WorkshopCardProps) => {
         </div>
 
         {error && <p role="alert" className="mt-4 rounded-xl border border-red-100 bg-red-50 px-3 py-2.5 text-xs font-medium leading-5 text-red-700">{error}</p>}
-        <button type="button" onClick={handleBooking} disabled={loading || !workshop.timeSlots?.length || (selectedSlot?.availableSpots ?? 0) <= 0} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#176b50] px-5 py-3.5 text-sm font-bold text-white shadow-sm hover:-translate-y-0.5 hover:bg-[#10543e] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0">
-          {loading ? 'Reserving your place...' : 'Book this workshop'}
-          {!loading && <ArrowRightIcon className="h-4 w-4" />}
+        <button type="button" onClick={handleBooking} disabled={loading || !workshop.timeSlots?.length || (selectedSlot?.availableSpots ?? 0) <= 0}
+          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#176b50] px-5 py-3.5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#10543e] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
+          aria-live="polite">
+          {loading ? (
+            <>
+              <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
+                <path className="opacity-90" d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+              </svg>
+              Processing your booking…
+            </>
+          ) : <>Book this workshop <ArrowRightIcon className="h-4 w-4" /></>}
         </button>
         <div className="mt-3 flex items-center justify-center gap-1.5 text-[11px] font-medium text-[#8a948d]"><CheckCircleIcon className="h-3.5 w-3.5" /> Secure booking · Instant confirmation</div>
       </div>
