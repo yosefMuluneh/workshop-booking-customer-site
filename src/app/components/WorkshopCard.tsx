@@ -82,13 +82,16 @@ const WorkshopCard = ({ workshop }: WorkshopCardProps) => {
           <label htmlFor={selectId} className="mb-2 block text-xs font-bold uppercase tracking-[.12em] text-[#59665e]">Choose a time</label>
           <div className="relative">
             <ClockIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#87938a]" />
-            <select id={selectId} value={selectedSlotId} onChange={(event) => setSelectedSlotId(event.target.value)} className="w-full appearance-none rounded-xl border border-[#e3e7df] bg-[#fafbf8] py-3 pl-10 pr-4 text-sm font-semibold text-[#34443a] outline-none focus:border-[#176b50] focus:ring-2 focus:ring-[#176b50]/10">
+            <select id={selectId} value={selectedSlotId} onChange={(event) => setSelectedSlotId(event.target.value)} className="w-full cursor-pointer appearance-none rounded-xl border border-[#e3e7df] bg-[#fafbf8] py-3 pl-10 pr-10 text-sm font-semibold text-[#34443a] shadow-sm outline-none transition hover:border-[#b9cbbd] focus:border-[#176b50] focus:ring-4 focus:ring-[#176b50]/10 disabled:cursor-not-allowed disabled:opacity-60">
               {!workshop.timeSlots?.length ? <option value="">No time slots available</option> : workshop.timeSlots.map((slot) => (
                 <option key={slot.id} value={slot.id} disabled={slot.availableSpots <= 0}>
                   {slot.startTime} – {slot.endTime} · {slot.availableSpots} spots left
                 </option>
               ))}
             </select>
+            <svg aria-hidden="true" className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#718078]" viewBox="0 0 20 20" fill="none">
+              <path d="m5 7.5 5 5 5-5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </div>
           {selectedSlot && (
             <div className="mt-3 flex items-center justify-between text-xs">
