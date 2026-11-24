@@ -81,6 +81,7 @@ const WorkshopCard = ({ workshop }: WorkshopCardProps) => {
             <CalendarDaysIcon className="w-4 h-4" />
             <span className="text-sm font-medium">
               {new Date(workshop.date).toLocaleDateString('en-US', {
+                timeZone: 'Africa/Addis_Ababa',
                 weekday: 'short',
                 month: 'short',
                 day: 'numeric',
