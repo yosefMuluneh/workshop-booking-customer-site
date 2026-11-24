@@ -19,9 +19,11 @@ export default function WorkshopCatalog({ workshops }: { workshops: Workshop[] }
       const date = new Date(workshop.date);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      const nextMonthStart = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+      const followingMonthStart = new Date(today.getFullYear(), today.getMonth() + 2, 1);
       const matchesDate = dateFilter === 'all' ||
         (dateFilter === 'upcoming' && date >= today) ||
-        (dateFilter === 'this-month' && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear());
+        (dateFilter === 'next-month' && date >= nextMonthStart && date < followingMonthStart);
       return matchesQuery && matchesDate;
     });
   }, [workshops, query, dateFilter]);
@@ -42,11 +44,16 @@ export default function WorkshopCatalog({ workshops }: { workshops: Workshop[] }
             </div>
             <div className="flex items-center gap-2 border-t border-[#edf0e9] pt-3 sm:border-l sm:border-t-0 sm:pl-3 sm:pt-0">
               <AdjustmentsHorizontalIcon className="h-5 w-5 text-[#87938a]" />
-              <select aria-label="Filter workshops by date" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} className="min-w-40 flex-1 rounded-xl bg-[#f7f8f4] px-4 py-3 text-sm font-semibold text-[#435148] outline-none focus:ring-2 focus:ring-[#176b50]/20">
-                <option value="all">All dates</option>
-                <option value="upcoming">Upcoming</option>
-                <option value="this-month">This month</option>
-              </select>
+              <div className="relative min-w-40 flex-1">
+                <select aria-label="Filter workshops by date" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} className="w-full cursor-pointer appearance-none rounded-xl border border-[#e3e7df] bg-[#f8f9f5] px-4 py-3 pr-10 text-sm font-semibold text-[#34443a] shadow-sm outline-none transition hover:border-[#b9cbbd] focus:border-[#176b50] focus:ring-4 focus:ring-[#176b50]/10">
+                  <option value="all">All time</option>
+                  <option value="upcoming">Upcoming</option>
+                  <option value="next-month">Next month</option>
+                </select>
+                <svg aria-hidden="true" className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#718078]" viewBox="0 0 20 20" fill="none">
+                  <path d="m5 7.5 5 5 5-5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
             </div>
           </div>
           <div className="mt-4 flex items-center justify-between text-xs font-medium text-[#7c887f]">
