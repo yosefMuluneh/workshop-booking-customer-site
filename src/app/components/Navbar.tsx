@@ -2,161 +2,91 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
-import { Bars3Icon, XMarkIcon, AcademicCapIcon, UserIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/solid';
-import Image from 'next/image';
+import {
+  Bars3Icon, XMarkIcon, AcademicCapIcon, UserCircleIcon,
+  ArrowRightOnRectangleIcon, ArrowRightIcon,
+} from '@heroicons/react/24/outline';
 
 const Navbar = () => {
   const { token, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+  const navLink = (href: string, label: string) =>
+    `rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+      pathname === href || (href === '/workshops' && pathname.startsWith('/workshops'))
+        ? 'bg-emerald-50 text-emerald-800'
+        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+    }`;
+
+  const closeMenu = () => setIsMobileMenuOpen(false);
 
   return (
-    <nav className="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
-          {/* Modern Logo */}
-          <Link href="/" className="flex items-center space-x-3 group">
-            <div className="relative">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
-                <AcademicCapIcon className="w-6 h-6 text-white" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white animate-pulse"></div>
-            </div>
-            <div className="hidden sm:block">
-              <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                WorkshopHub
-              </span>
-              <p className="text-xs text-slate-500 -mt-1">Learn & Grow</p>
-            </div>
-          </Link>
+    <header className="sticky top-0 z-50 border-b border-[#e9e8e1] bg-[#fbfaf7]/95 backdrop-blur-xl">
+      <nav className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-5 sm:px-8">
+        <Link href="/" onClick={closeMenu} className="group flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#176b50] text-white shadow-sm shadow-emerald-900/15 transition-transform group-hover:-rotate-3">
+            <AcademicCapIcon className="h-6 w-6" />
+          </span>
+          <span className="leading-tight">
+            <span className="block text-[19px] font-extrabold tracking-tight text-[#17231f]">WorkshopHub</span>
+            <span className="mt-0.5 block text-[11px] font-medium tracking-[.13em] text-[#78837c]">LEARN WITH PURPOSE</span>
+          </span>
+        </Link>
 
-          {/* Modern Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-1">
-            <Link
-              href="/workshops"
-              className="flex items-center space-x-2 px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200 font-medium"
-            >
-              <AcademicCapIcon className="w-4 h-4" />
-              <span>Browse Workshops</span>
-            </Link>
-            
+        <div className="hidden items-center gap-2 md:flex">
+          <Link href="/workshops" className={navLink('/workshops', 'Browse workshops')}>Browse workshops</Link>
+          {token ? (
+            <>
+              <Link href="/my-bookings" className={navLink('/my-bookings', 'My bookings')}>My bookings</Link>
+              <button onClick={logout} className="ml-2 inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:border-red-200 hover:bg-red-50 hover:text-red-700">
+                <ArrowRightOnRectangleIcon className="h-4 w-4" /> Sign out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href="/login" className={navLink('/login', 'Sign in')}>Sign in</Link>
+              <Link href="/register" className="ml-1 inline-flex items-center gap-2 rounded-full bg-[#176b50] px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:-translate-y-0.5 hover:bg-[#10543e] hover:shadow-md">
+                Create account <ArrowRightIcon className="h-4 w-4" />
+              </Link>
+            </>
+          )}
+        </div>
+
+        <button
+          type="button"
+          aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-expanded={isMobileMenuOpen}
+          onClick={() => setIsMobileMenuOpen((open) => !open)}
+          className="rounded-xl p-2 text-slate-700 hover:bg-slate-100 md:hidden"
+        >
+          {isMobileMenuOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
+        </button>
+      </nav>
+
+      {isMobileMenuOpen && (
+        <div className="border-t border-slate-200 bg-[#fbfaf7] px-5 py-4 shadow-lg md:hidden">
+          <div className="mx-auto flex max-w-7xl flex-col gap-2">
+            <Link href="/workshops" onClick={closeMenu} className={navLink('/workshops', 'Browse workshops')}>Browse workshops</Link>
             {token ? (
               <>
-                <Link 
-                  href="/my-bookings" 
-                  className="flex items-center space-x-2 px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200 font-medium"
-                >
-                  <UserIcon className="w-4 h-4" />
-                  <span>My Bookings</span>
-                </Link>
-                
-                <div className="w-px h-6 bg-slate-300 mx-2"></div>
-                
-                <button
-                  onClick={logout}
-                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-300 hover:scale-105 shadow-sm font-medium"
-                >
-                  <ArrowRightOnRectangleIcon className="w-4 h-4" />
-                  <span>Logout</span>
+                <Link href="/my-bookings" onClick={closeMenu} className={navLink('/my-bookings', 'My bookings')}>My bookings</Link>
+                <button onClick={() => { logout(); closeMenu(); }} className="flex items-center gap-2 rounded-xl px-4 py-3 text-left text-sm font-semibold text-red-700 hover:bg-red-50">
+                  <ArrowRightOnRectangleIcon className="h-5 w-5" /> Sign out
                 </button>
               </>
             ) : (
               <>
-                <Link
-                  href="/login"
-                  className="px-4 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all duration-200 font-medium"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/register"
-                  className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-sm font-medium"
-                >
-                  Get Started
-                </Link>
+                <Link href="/login" onClick={closeMenu} className={navLink('/login', 'Sign in')}>Sign in</Link>
+                <Link href="/register" onClick={closeMenu} className="mt-1 rounded-xl bg-[#176b50] px-4 py-3 text-center text-sm font-semibold text-white">Create account</Link>
               </>
             )}
           </div>
-
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <button
-              onClick={toggleMobileMenu}
-              className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200"
-            >
-              {isMobileMenuOpen ? (
-                <XMarkIcon className="h-5 w-5" />
-              ) : (
-                <Bars3Icon className="h-5 w-5" />
-              )}
-            </button>
-          </div>
         </div>
-
-        {/* Modern Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 bg-white/95 backdrop-blur-md">
-            <div className="px-4 py-4 space-y-2">
-              <Link
-                href="/workshops"
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200"
-                onClick={toggleMobileMenu}
-              >
-                <AcademicCapIcon className="w-5 h-5" />
-                <span className="font-medium">Browse Workshops</span>
-              </Link>
-              
-              {token ? (
-                <>
-                  <Link
-                    href="/my-bookings"
-                    className="flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200"
-                    onClick={toggleMobileMenu}
-                  >
-                    <UserIcon className="w-5 h-5" />
-                    <span className="font-medium">My Bookings</span>
-                  </Link>
-                  
-                  <div className="border-t border-slate-200 pt-2 mt-2">
-                    <button
-                      onClick={() => {
-                        logout();
-                        toggleMobileMenu();
-                      }}
-                      className="flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-200 w-full"
-                    >
-                      <ArrowRightOnRectangleIcon className="w-5 h-5" />
-                      <span className="font-medium">Logout</span>
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    className="flex items-center justify-center px-4 py-3 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200 font-medium"
-                    onClick={toggleMobileMenu}
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-medium"
-                    onClick={toggleMobileMenu}
-                  >
-                    Get Started
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    </nav>
+      )}
+    </header>
   );
 };
 
