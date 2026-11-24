@@ -4,11 +4,19 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Workshop } from '@/types';
 import WorkshopCard from './WorkshopCard';
-import { AcademicCapIcon, MagnifyingGlassIcon, AdjustmentsHorizontalIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { AcademicCapIcon, MagnifyingGlassIcon, AdjustmentsHorizontalIcon, ArrowRightIcon, ChevronDownIcon, CheckIcon } from '@heroicons/react/24/outline';
+
+const dateOptions = [
+  { value: 'all', label: 'All time', description: 'Browse every workshop' },
+  { value: 'upcoming', label: 'Upcoming', description: 'Today and future sessions' },
+  { value: 'next-month', label: 'Next month', description: 'Sessions in the next calendar month' },
+];
 
 export default function WorkshopCatalog({ workshops }: { workshops: Workshop[] }) {
   const [query, setQuery] = useState('');
   const [dateFilter, setDateFilter] = useState('all');
+  const [filterOpen, setFilterOpen] = useState(false);
+  const activeOption = dateOptions.find((option) => option.value === dateFilter) || dateOptions[0];
 
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -43,22 +51,31 @@ export default function WorkshopCatalog({ workshops }: { workshops: Workshop[] }
               <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by workshop or topic..." aria-label="Search workshops" className="w-full rounded-xl bg-transparent py-3 pl-12 pr-4 text-sm text-[#17231f] outline-none placeholder:text-[#9aa39d]" />
             </div>
             <div className="flex items-center gap-2 border-t border-[#edf0e9] pt-3 sm:border-l sm:border-t-0 sm:pl-3 sm:pt-0">
-              <AdjustmentsHorizontalIcon className="h-5 w-5 text-[#87938a]" />
-              <div className="relative min-w-40 flex-1">
-                <select aria-label="Filter workshops by date" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} className="w-full cursor-pointer appearance-none rounded-xl border border-[#e3e7df] bg-[#f8f9f5] px-4 py-3 pr-10 text-sm font-semibold text-[#34443a] shadow-sm outline-none transition hover:border-[#b9cbbd] focus:border-[#176b50] focus:ring-4 focus:ring-[#176b50]/10">
-                  <option value="all">All time</option>
-                  <option value="upcoming">Upcoming</option>
-                  <option value="next-month">Next month</option>
-                </select>
-                <svg aria-hidden="true" className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#718078]" viewBox="0 0 20 20" fill="none">
-                  <path d="m5 7.5 5 5 5-5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+              <AdjustmentsHorizontalIcon className="h-5 w-5 shrink-0 text-[#87938a]" />
+              <div className="relative min-w-44 flex-1 sm:flex-none">
+                <button type="button" aria-haspopup="listbox" aria-expanded={filterOpen} onClick={() => setFilterOpen((open) => !open)}
+                  className="flex w-full min-w-44 items-center justify-between gap-4 rounded-xl border border-[#e3e7df] bg-[#f8f9f5] px-4 py-3 text-left shadow-sm transition hover:border-[#b9cbbd] hover:bg-white focus:border-[#176b50] focus:outline-none focus:ring-4 focus:ring-[#176b50]/10">
+                  <span><span className="block text-sm font-semibold text-[#34443a]">{activeOption.label}</span><span className="mt-0.5 block text-[11px] text-[#87938a]">{activeOption.description}</span></span>
+                  <ChevronDownIcon className={`h-4 w-4 shrink-0 text-[#718078] transition-transform ${filterOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {filterOpen && (
+                  <div role="listbox" aria-label="Filter workshops by date" className="absolute right-0 z-40 mt-2 w-full min-w-64 overflow-hidden rounded-2xl border border-[#e4e9e1] bg-white p-1.5 shadow-[0_18px_45px_rgba(27,45,35,.16)]">
+                    {dateOptions.map((option) => (
+                      <button key={option.value} type="button" role="option" aria-selected={dateFilter === option.value}
+                        onClick={() => { setDateFilter(option.value); setFilterOpen(false); }}
+                        className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition ${dateFilter === option.value ? 'bg-[#edf4ee] text-[#176b50]' : 'text-[#34443a] hover:bg-[#f7f8f4]'}`}>
+                        <span className="min-w-0 flex-1"><span className="block text-sm font-semibold">{option.label}</span><span className="mt-0.5 block text-xs text-[#87938a]">{option.description}</span></span>
+                        {dateFilter === option.value && <CheckIcon className="h-4 w-4 shrink-0" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
           <div className="mt-4 flex items-center justify-between text-xs font-medium text-[#7c887f]">
             <span>{filtered.length} {filtered.length === 1 ? 'workshop' : 'workshops'} to explore</span>
-            {(query || dateFilter !== 'all') && <button onClick={() => { setQuery(''); setDateFilter('all'); }} className="font-bold text-[#176b50] hover:underline">Clear filters</button>}
+            {(query || dateFilter !== 'all') && <button onClick={() => { setQuery(''); setDateFilter('all'); setFilterOpen(false); }} className="font-bold text-[#176b50] hover:underline">Clear filters</button>}
           </div>
         </div>
       </section>
