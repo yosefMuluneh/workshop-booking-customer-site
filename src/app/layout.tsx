@@ -1,30 +1,22 @@
-// app/layout.tsx
-
 import './globals.css';
 import { Inter } from 'next/font/google';
-import { Providers } from './providers'; // Import the new Providers component
+import { Providers } from './providers';
 import Navbar from './components/Navbar';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
 export const metadata = {
-  title: 'Workshop Bookings',
-  description: 'Find and book your next workshop!',
+  title: 'WorkshopHub | Learn something remarkable',
+  description: 'Discover practical, expert-led workshops and book your next learning experience.',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-slate-50`}>
-        <Providers> 
+      <body className={inter.className}>
+        <Providers>
           <Navbar />
-          <main className="min-h-screen">
-            {children}
-          </main>
+          <main className="min-h-[calc(100vh-80px)]">{children}</main>
         </Providers>
       </body>
     </html>
