@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { getPublicWorkshops } from '../../api/customerApi';
 import WorkshopCatalog from '../../components/WorkshopCatalog';
 import { Workshop } from '@/types';
