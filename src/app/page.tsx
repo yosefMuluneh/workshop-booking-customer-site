@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import Link from 'next/link';
 import { getPublicWorkshops } from './api/customerApi';
 import WorkshopCard from './components/WorkshopCard';
