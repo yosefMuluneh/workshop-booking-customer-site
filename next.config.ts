@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  //by pass type checking for the next.config.js file
+  outputFileTracingRoot: process.cwd(),
+
   typescript: {
     ignoreBuildErrors: true,
   },
